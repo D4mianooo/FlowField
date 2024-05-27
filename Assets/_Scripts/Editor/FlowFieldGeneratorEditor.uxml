@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <Style src="project://database/Assets/_Scripts/Editor/FlowFieldGeneratorEditor.uss?fileID=7433441132597879392&amp;guid=a003f820a2d2d4e4a80cc24529e75cf2&amp;type=3#FlowFieldGeneratorEditor" />
+    <ui:Foldout text="Default Inspector" name="Default_Inspector" />
+</ui:UXML>
