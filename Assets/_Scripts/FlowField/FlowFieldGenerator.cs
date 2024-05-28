@@ -14,12 +14,14 @@ public class FlowFieldGenerator : MonoBehaviour{
         }
         Vector3 mouseWorldPos = Mouse3D.GetMouseWorldPosition();
         if (Input.GetMouseButtonDown(0)) {
-            _flowField.CreateIntegrationField(_flowField.GetCellFromWorldPosition(mouseWorldPos));
-        }
+            Cell cellAtMousePosition = _flowField.GetCellFromWorldPosition(mouseWorldPos);
+            _flowField.CreateIntegrationField(cellAtMousePosition);
+            _flowField.CreateFlowField();
+        }   
     }
     public void CreateFlowField() {
         _flowField = new FlowField(_size, _cellRadius);
-        _flowField.GenerateGrid();
+        _flowField.CreateGrid();
         _flowField.CreateCostField();
         _flowFieldDebug.SetFlowField(_flowField);
     }

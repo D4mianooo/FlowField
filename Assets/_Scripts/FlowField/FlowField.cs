@@ -18,7 +18,7 @@ public class FlowField {
         _grid = new Cell[size.x, size.y];
     }
     
-    public void GenerateGrid() {
+    public void CreateGrid() {
         for (int x = 0; x < _size.x; x++) {
             for (int y = 0; y < _size.y; y++) {
                 _grid[x, y] = new Cell(new Vector3(x * _cellDiameter + _cellRadius, 0f, y * _cellDiameter  + _cellRadius), new Vector2Int(x, y));
@@ -54,7 +54,7 @@ public class FlowField {
         while (q.Count > 0) {
             Cell current = q.Dequeue();
             
-            List<Cell> neighbours = GetNeighboursFromCell(current);
+            List<Cell> neighbours = GetNeighboursFromCell(current, GridDirection.AllDirections);
             foreach (Cell neighbour in neighbours) {
                 if (neighbour.GetCost() < byte.MaxValue && neighbour.GetBestCost() == ushort.MaxValue) {
                     int neighbourCost = current.GetBestCost() + neighbour.GetCost();
@@ -66,41 +66,20 @@ public class FlowField {
             }
         }
     }
-    public void CreateFlowField() {
-        Queue<Cell> q = new Queue<Cell>();
-        q.Enqueue(_destinationCell);
 
-        while (q.Count > 0) {
-            Cell current = q.Dequeue();
-            int smallestCost = ushort.MaxValue;
-            List<Cell> neighbours = GetNeighboursFromCell(current);
+    public void CreateFlowField() {
+        foreach (Cell current in _grid) {
+            List<Cell> neighbours = GetNeighboursFromCell(current, GridDirection.AllDirections);
+            int bestCost = current.GetBestCost();
             foreach (Cell neighbour in neighbours) {
-                if (current.GetBestCost() + neighbour.GetBestCost() <= smallestCost) {
-                    smallestCost = current.GetBestCost() + neighbour.GetBestCost();
-                    Vector2Int direction = current.GetCoordinate() - neighbour.GetCoordinate();
-                    current.SetBestDirection(GridDirection.GetDirectionFromV2I(direction));
+                if (neighbour.GetBestCost() < bestCost) {
+                    bestCost = neighbour.GetBestCost();
+                    current.SetBestDirection(GridDirection.GetDirectionFromV2I(neighbour.GetCoordinate() - current.GetCoordinate()));
                 }
-                q.Enqueue(neighbour);
-                    
             }
         }
     }
     
-    private List<Cell> GetNeighboursFromCell(Cell cell) {
-        List<Cell> neighbours = new List<Cell>();
-        foreach (GridDirection dir in GridDirection.CardinalAndIntercardinalDirections) {
-            Cell neighbour = GetCellFromCoordinates(cell.GetCoordinate() + dir.Vector);
-            if (neighbour != null) {
-                neighbours.Add(neighbour);
-            }
-        }
-        return neighbours;
-    }
-    private void ClearIntegrationField() {
-        foreach (Cell cell in _grid) {
-            cell.SetBestCost(ushort.MaxValue);
-        }
-    }
     public Cell GetCellFromWorldPosition(Vector3 worldPos) {
         float percentX = worldPos.x / (_size.x * _cellDiameter);
         float percentY = worldPos.z / (_size.y * _cellDiameter);
@@ -113,8 +92,26 @@ public class FlowField {
         
         return _grid[x, y];
     }
+    
     public Cell GetCellFromCoordinates(Vector2Int coordinates) {
         if (coordinates.x < 0 || coordinates.x >= _size.x || coordinates.y < 0 || coordinates.y >= _size.y) return null;    
         return _grid[coordinates.x, coordinates.y];
     }
+    
+    private List<Cell> GetNeighboursFromCell(Cell cell, List<GridDirection> directions) {
+        List<Cell> neighbours = new List<Cell>();
+        foreach (GridDirection dir in directions) {
+            Cell neighbour = GetCellFromCoordinates(cell.GetCoordinate() + dir.Vector);
+            if (neighbour != null) {
+                neighbours.Add(neighbour);
+            }
+        }
+        return neighbours;
+    }
+    private void ClearIntegrationField() {
+        foreach (Cell cell in _grid) {
+            cell.SetBestCost(ushort.MaxValue);
+        }
+    }
+
 }

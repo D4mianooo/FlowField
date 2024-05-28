@@ -20,7 +20,7 @@ public class GridDirection
     {
         return CardinalAndIntercardinalDirections.DefaultIfEmpty(None).FirstOrDefault(direction => direction == vector);
     }
-
+    
     public static readonly GridDirection None = new GridDirection(0, 0);
     public static readonly GridDirection North = new GridDirection(0, 1);
     public static readonly GridDirection South = new GridDirection(0, -1);

@@ -11,6 +11,7 @@ public class Cell {
         _coordinate = coordinate;
         _cost = 1;
         _bestCost = ushort.MaxValue;
+        _bestDirection = null;
     }
 
     public Vector3 GetWorldPosition() {
@@ -38,5 +39,8 @@ public class Cell {
     }
     public void SetBestDirection(GridDirection direction) {
         _bestDirection = direction;
+    }
+    public GridDirection GetBestDirection() {
+        return _bestDirection;
     }
 }
