@@ -72,7 +72,7 @@ public class FlowField {
             List<Cell> neighbours = GetNeighboursFromCell(current, GridDirection.AllDirections);
             int bestCost = current.GetBestCost();
             foreach (Cell neighbour in neighbours) {
-                if (neighbour.GetBestCost() < bestCost) {
+                if (neighbour.GetBestCost() <= bestCost) {
                     bestCost = neighbour.GetBestCost();
                     current.SetBestDirection(GridDirection.GetDirectionFromV2I(neighbour.GetCoordinate() - current.GetCoordinate()));
                 }
