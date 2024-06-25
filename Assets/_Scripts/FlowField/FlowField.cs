@@ -3,33 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class FlowField {
-    public Cell[,] _grid { get; private set; }
-    public Vector2Int _size { get; private set; }
-    public float _cellRadius { get; private set; }
-    public float _cellDiameter { get; private set; }
-
-    public Cell _destinationCell;
+    public Cell[,] Grid { get; private set; }
+    public Vector2Int Size { get; private set; }
+    public float CellRadius { get; private set; }
+    public float CellDiameter { get; private set; }
+    public Cell DestinationCell { get; private set; }
     
-    private static readonly Vector3[] dirs = { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
     public FlowField(Vector2Int size, float cellRadius) {
-        _size = size;
-        _cellDiameter = cellRadius * 2f;
-        _cellRadius = cellRadius;
-        _grid = new Cell[size.x, size.y];
+        Size = size;
+        CellDiameter = cellRadius * 2f;
+        CellRadius = cellRadius;
+        Grid = new Cell[size.x, size.y];
     }
     
     public void CreateGrid() {
-        for (int x = 0; x < _size.x; x++) {
-            for (int y = 0; y < _size.y; y++) {
-                _grid[x, y] = new Cell(new Vector3(x * _cellDiameter + _cellRadius, 0f, y * _cellDiameter  + _cellRadius), new Vector2Int(x, y));
+        for (int x = 0; x < Size.x; x++) {
+            for (int y = 0; y < Size.y; y++) {
+                Grid[x, y] = new Cell(new Vector3(x * CellDiameter + CellRadius, 0f, y * CellDiameter  + CellRadius), new Vector2Int(x, y));
             }   
         }
     }
+    
     public void CreateCostField() {
         int layer = LayerMask.GetMask("Impassible", "Mud");
-        foreach (Cell cell in _grid) {
+        foreach (Cell cell in Grid) {
             bool hasIncreased = false;
-            Collider[] colliders = Physics.OverlapBox(cell.GetWorldPosition(), Vector3.one * _cellRadius, Quaternion.identity, layer);
+            Collider[] colliders = Physics.OverlapBox(cell.WorldPosition, Vector3.one * CellRadius, Quaternion.identity, layer);
             foreach (Collider collider in colliders) {
                 if (collider.gameObject.layer == 6) {
                     cell.IncreaseCost(Byte.MaxValue);
@@ -41,24 +40,26 @@ public class FlowField {
             }
         }
     }
+    
     public void CreateIntegrationField(Cell cell) {
         ClearIntegrationField();
         
-        _destinationCell = cell;
-        if(_destinationCell.GetCost() >= byte.MaxValue) return;
-        _destinationCell.SetBestCost(0);
+        DestinationCell = cell;
+        if(DestinationCell.Cost >= byte.MaxValue) return;
+        
+        DestinationCell.SetBestCost(0);
 
         Queue<Cell> q = new Queue<Cell>();
-        q.Enqueue(_destinationCell);
+        q.Enqueue(DestinationCell);
         
         while (q.Count > 0) {
             Cell current = q.Dequeue();
+            List<Cell> neighbours = GetNeighboursFromCell(current.Coordinate, GridDirection.AllDirections);
             
-            List<Cell> neighbours = GetNeighboursFromCell(current, GridDirection.AllDirections);
             foreach (Cell neighbour in neighbours) {
-                if (neighbour.GetCost() < byte.MaxValue && neighbour.GetBestCost() == ushort.MaxValue) {
-                    int neighbourCost = current.GetBestCost() + neighbour.GetCost();
-                    if (neighbourCost < neighbour.GetBestCost()) {
+                if (neighbour.Cost < byte.MaxValue && neighbour.BestCost == ushort.MaxValue) {
+                    int neighbourCost = current.BestCost + neighbour.Cost;
+                    if (neighbourCost < neighbour.BestCost) {
                         neighbour.SetBestCost((ushort) neighbourCost);
                     }
                     q.Enqueue(neighbour);
@@ -68,50 +69,51 @@ public class FlowField {
     }
 
     public void CreateFlowField() {
-        foreach (Cell current in _grid) {
-            List<Cell> neighbours = GetNeighboursFromCell(current, GridDirection.AllDirections);
-            int bestCost = current.GetBestCost();
+        foreach (Cell current in Grid) {
+            List<Cell> neighbours = GetNeighboursFromCell(current.Coordinate, GridDirection.AllDirections);
+            int bestCost = current.BestCost;
             foreach (Cell neighbour in neighbours) {
-                if (neighbour.GetBestCost() <= bestCost) {
-                    bestCost = neighbour.GetBestCost();
-                    current.SetBestDirection(GridDirection.GetDirectionFromV2I(neighbour.GetCoordinate() - current.GetCoordinate()));
+                if (neighbour.BestCost < bestCost) {
+                    bestCost = neighbour.BestCost;
+                    current.SetBestDirection(GridDirection.GetDirectionFromV2I(neighbour.Coordinate - current.Coordinate));
                 }
             }
         }
     }
     
     public Cell GetCellFromWorldPosition(Vector3 worldPos) {
-        float percentX = worldPos.x / (_size.x * _cellDiameter);
-        float percentY = worldPos.z / (_size.y * _cellDiameter);
+        float percentX = worldPos.x / (Size.x * CellDiameter);
+        float percentY = worldPos.z / (Size.y * CellDiameter);
 
         percentX = Mathf.Clamp01(percentX);
         percentY = Mathf.Clamp01(percentY);
 
-        int x = Mathf.Clamp(Mathf.FloorToInt(_size.x * percentX), 0, _size.x - 1);
-        int y = Mathf.Clamp(Mathf.FloorToInt(_size.y * percentY), 0, _size.y - 1);
+        int x = Mathf.Clamp(Mathf.FloorToInt(Size.x * percentX), 0, Size.x - 1);
+        int y = Mathf.Clamp(Mathf.FloorToInt(Size.y * percentY), 0, Size.y - 1);
         
-        return _grid[x, y];
+        return Grid[x, y];
     }
     
-    public Cell GetCellFromCoordinates(Vector2Int coordinates) {
-        if (coordinates.x < 0 || coordinates.x >= _size.x || coordinates.y < 0 || coordinates.y >= _size.y) return null;    
-        return _grid[coordinates.x, coordinates.y];
-    }
     
-    private List<Cell> GetNeighboursFromCell(Cell cell, List<GridDirection> directions) {
+    private List<Cell> GetNeighboursFromCell(Vector2Int coordinates, List<GridDirection> directions) {
         List<Cell> neighbours = new List<Cell>();
-        foreach (GridDirection dir in directions) {
-            Cell neighbour = GetCellFromCoordinates(cell.GetCoordinate() + dir.Vector);
+        foreach (Vector2Int dir in directions) {
+            Cell neighbour = GetCellFromCoordinates(coordinates + dir);
             if (neighbour != null) {
                 neighbours.Add(neighbour);
             }
         }
         return neighbours;
     }
+    
+    public Cell GetCellFromCoordinates(Vector2Int coordinates) {
+        if (coordinates.x < 0 || coordinates.x >= Size.x || coordinates.y < 0 || coordinates.y >= Size.y) return null;    
+        return Grid[coordinates.x, coordinates.y];
+    }
+    
     private void ClearIntegrationField() {
-        foreach (Cell cell in _grid) {
+        foreach (Cell cell in Grid) {
             cell.SetBestCost(ushort.MaxValue);
         }
     }
-
 }
