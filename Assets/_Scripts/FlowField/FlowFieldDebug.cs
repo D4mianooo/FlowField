@@ -2,37 +2,33 @@ using UnityEditor;
 using UnityEngine;
 
 
-public enum FlowFieldDisplayType { None, AllIcons, DestinationIcon, CostField, IntegrationField };
 
 public class FlowFieldDebug : MonoBehaviour
 {
-	public FlowFieldGenerator flowFieldGenerator;
-	public bool displayGrid;
-	public FlowFieldDisplayType curDisplayType;
+	private FlowFieldGenerator _flowFieldGenerator;
+	private bool _displayGrid;
+	private FlowFieldDisplayType _curDisplayType;
 
-	private Vector2Int gridSize;
-	private float cellRadius;
-	private FlowField curFlowField;
+	private Vector2Int _gridSize;
+	private float _cellRadius;
+	private FlowField _curFlowField;
 
-	private Sprite[] ffIcons;
+	private Sprite[] _ffIcons;
 
-	private void Start()
-	{
-		ffIcons = Resources.LoadAll<Sprite>("Sprites/FFicons");
+	private void Start() {
+		_ffIcons = Resources.LoadAll<Sprite>("Sprites/FFicons");
 	}
 
-	public void SetFlowField(FlowField newFlowField)
-	{
-		curFlowField = newFlowField;
-		cellRadius = newFlowField._cellRadius;
-		gridSize = newFlowField._size;
+	public void SetFlowField(FlowField newFlowField) {
+		_curFlowField = newFlowField;
+		_cellRadius = newFlowField.CellRadius;
+		_gridSize = newFlowField.Size;
 	}
 	
-	public void DrawFlowField()
-	{
+	public void DrawFlowField() {
 		ClearCellDisplay();
 
-		switch (curDisplayType)
+		switch (_curDisplayType)
 		{
 			case FlowFieldDisplayType.AllIcons:
 				DisplayAllCells();
@@ -44,147 +40,137 @@ public class FlowFieldDebug : MonoBehaviour
 		}
 	}
 
-	private void DisplayAllCells()
-	{
-		if (curFlowField == null) { return; }
-		foreach (Cell curCell in curFlowField._grid)
+	private void DisplayAllCells() {
+		if (_curFlowField == null) { return; }
+		foreach (Cell curCell in _curFlowField.Grid)
 		{
 			DisplayCell(curCell);
 		}
 	}
 
-	private void DisplayDestinationCell()
-	{
-		if (curFlowField == null) { return; }
-		DisplayCell(curFlowField._destinationCell);
+	private void DisplayDestinationCell() {
+		if (_curFlowField == null) { return; }
+		DisplayCell(_curFlowField.DestinationCell);
 	}
 
-	private void DisplayCell(Cell cell)
-	{
+	private void DisplayCell(Cell cell) {
 		GameObject iconGO = new GameObject();
 		SpriteRenderer iconSR = iconGO.AddComponent<SpriteRenderer>();
 		iconGO.transform.parent = transform;
-		iconGO.transform.position = cell.GetWorldPosition();
+		iconGO.transform.position = cell.WorldPosition;
 
-		if (cell.GetBestCost() == 0)
+		if (cell.BestCost == 0)
 		{
-			iconSR.sprite = ffIcons[3];
+			iconSR.sprite = _ffIcons[3];
 			Quaternion newRot = Quaternion.Euler(90, 0, 0);
 			iconGO.transform.rotation = newRot;
 		}
-		else if (cell.GetCost() == byte.MaxValue)
+		else if (cell.Cost == byte.MaxValue)
 		{
-			iconSR.sprite = ffIcons[2];
+			iconSR.sprite = _ffIcons[2];
 			Quaternion newRot = Quaternion.Euler(90, 0, 0);
 			iconGO.transform.rotation = newRot;
 		}
-		else if (cell.GetBestDirection() == GridDirection.North)
+		else if (cell.BestDirection == GridDirection.North)
 		{
-			iconSR.sprite = ffIcons[0];
+			iconSR.sprite = _ffIcons[0];
 			Quaternion newRot = Quaternion.Euler(90, 0, 0);
 			iconGO.transform.rotation = newRot;
 		}
-		else if (cell.GetBestDirection() == GridDirection.South)
+		else if (cell.BestDirection == GridDirection.South)
 		{
-			iconSR.sprite = ffIcons[0];
+			iconSR.sprite = _ffIcons[0];
 			Quaternion newRot = Quaternion.Euler(90, 180, 0);
 			iconGO.transform.rotation = newRot;
 		}
-		else if (cell.GetBestDirection() == GridDirection.East)
+		else if (cell.BestDirection == GridDirection.East)
 		{
-			iconSR.sprite = ffIcons[0];
+			iconSR.sprite = _ffIcons[0];
 			Quaternion newRot = Quaternion.Euler(90, 90, 0);
 			iconGO.transform.rotation = newRot;
 		}
-		else if (cell.GetBestDirection() == GridDirection.West)
+		else if (cell.BestDirection == GridDirection.West)
 		{
-			iconSR.sprite = ffIcons[0];
+			iconSR.sprite = _ffIcons[0];
 			Quaternion newRot = Quaternion.Euler(90, 270, 0);
 			iconGO.transform.rotation = newRot;
 		}
-		else if (cell.GetBestDirection() == GridDirection.NorthEast)
+		else if (cell.BestDirection == GridDirection.NorthEast)
 		{
-			iconSR.sprite = ffIcons[1];
+			iconSR.sprite = _ffIcons[1];
 			Quaternion newRot = Quaternion.Euler(90, 0, 0);
 			iconGO.transform.rotation = newRot;
 		}
-		else if (cell.GetBestDirection() == GridDirection.NorthWest)
+		else if (cell.BestDirection == GridDirection.NorthWest)
 		{
-			iconSR.sprite = ffIcons[1];
+			iconSR.sprite = _ffIcons[1];
 			Quaternion newRot = Quaternion.Euler(90, 270, 0);
 			iconGO.transform.rotation = newRot;
 		}
-		else if (cell.GetBestDirection() == GridDirection.SouthEast)
+		else if (cell.BestDirection == GridDirection.SouthEast)
 		{
-			iconSR.sprite = ffIcons[1];
+			iconSR.sprite = _ffIcons[1];
 			Quaternion newRot = Quaternion.Euler(90, 90, 0);
 			iconGO.transform.rotation = newRot;
 		}
-		else if (cell.GetBestDirection() == GridDirection.SouthWest)
+		else if (cell.BestDirection == GridDirection.SouthWest)
 		{
-			iconSR.sprite = ffIcons[1];
+			iconSR.sprite = _ffIcons[1];
 			Quaternion newRot = Quaternion.Euler(90, 180, 0);
 			iconGO.transform.rotation = newRot;
 		}
 		else
 		{
-			iconSR.sprite = ffIcons[0];
+			iconSR.sprite = _ffIcons[0];
 		}
 	}
 
-	public void ClearCellDisplay()
-	{
+	public void ClearCellDisplay() {
 		foreach (Transform t in transform)
 		{
 			Destroy(t.gameObject);
 		}
 	}
 	
-	private void OnDrawGizmos()
-	{
-		if (displayGrid)
+	private void OnDrawGizmos() {
+		if (_displayGrid)
 		{
-			if (curFlowField == null)
+			if (_curFlowField == null)
 			{
-				DrawGrid(flowFieldGenerator.Size, Color.yellow, flowFieldGenerator.CellRadius);
+				DrawGrid(_flowFieldGenerator.Size, Color.yellow, _flowFieldGenerator.CellRadius);
 			}
 			else
 			{
-				DrawGrid(gridSize, Color.green, cellRadius);
+				DrawGrid(_gridSize, Color.green, _cellRadius);
 			}
 		}
 		
-		if (curFlowField == null) { return; }
+		if (_curFlowField == null) { return; }
 
 		GUIStyle style = new GUIStyle(GUI.skin.label);
 		style.alignment = TextAnchor.MiddleCenter;
 
-		switch (curDisplayType)
+		switch (_curDisplayType)
 		{
 			case FlowFieldDisplayType.CostField:
 
-				foreach (Cell curCell in curFlowField._grid)
+				foreach (Cell curCell in _curFlowField.Grid)
 				{
-					Handles.Label(curCell.GetWorldPosition(), curCell.GetCost().ToString(), style);
+					Handles.Label(curCell.WorldPosition, curCell.Cost.ToString(), style);
 				}
 				break;
 				
 			case FlowFieldDisplayType.IntegrationField:
 
-				foreach (Cell curCell in curFlowField._grid)
+				foreach (Cell curCell in _curFlowField.Grid)
 				{
-					Handles.Label(curCell.GetWorldPosition(), curCell.GetBestCost().ToString(), style);
+					Handles.Label(curCell.WorldPosition, curCell.BestCost.ToString(), style);
 				}
 				break;
-				
-			default:
-				break;
 		}
-		
 	}
 
-	private void DrawGrid(Vector2Int drawGridSize, Color drawColor, float drawCellRadius)
-	{
+	private void DrawGrid(Vector2Int drawGridSize, Color drawColor, float drawCellRadius) {
 		Gizmos.color = drawColor;
 		for (int x = 0; x < drawGridSize.x; x++)
 		{
