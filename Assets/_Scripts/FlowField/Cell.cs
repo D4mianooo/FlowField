@@ -1,46 +1,33 @@
 using UnityEngine;
 
 public class Cell {
-    private Vector3 _worldPosition;
-    private Vector2Int _coordinate;
-    private byte _cost;
-    private ushort _bestCost;
-    private GridDirection _bestDirection;
+    public Vector3 WorldPosition { get; private set; }
+    public Vector2Int Coordinate { get; private set; }
+    public byte Cost { get; private set; }
+    public ushort BestCost { get; private set; }
+    public GridDirection BestDirection { get; private set; }
+    
     public Cell(Vector3 worldPosition, Vector2Int coordinate) {
-        _worldPosition = worldPosition;
-        _coordinate = coordinate;
-        _cost = 1;
-        _bestCost = ushort.MaxValue;
-        _bestDirection = null;
+        WorldPosition = worldPosition;
+        Coordinate = coordinate;
+        Cost = 1;
+        BestCost = ushort.MaxValue;
+        BestDirection = null;
     }
-
-    public Vector3 GetWorldPosition() {
-        return _worldPosition;
-    }
-
-    public Vector2Int GetCoordinate() {
-        return _coordinate;
-    }
-    public byte GetCost() {
-        return _cost;
-    }
+    
     public void IncreaseCost(byte value) {
-        if (value + _cost >= byte.MaxValue) {
-            _cost = byte.MaxValue;
+        if (value + Cost >= byte.MaxValue) {
+            Cost = byte.MaxValue;
             return;
         }
-        _cost += value;
+        Cost += value;
     }
-    public ushort GetBestCost() {
-        return _bestCost;
-    }
+    
     public void SetBestCost(ushort value) {
-        _bestCost = value;
+        BestCost = value;
     }
+    
     public void SetBestDirection(GridDirection direction) {
-        _bestDirection = direction;
-    }
-    public GridDirection GetBestDirection() {
-        return _bestDirection;
+        BestDirection = direction;
     }
 }
