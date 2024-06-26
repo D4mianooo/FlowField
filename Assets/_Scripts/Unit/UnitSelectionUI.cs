@@ -9,10 +9,10 @@ public class UnitSelectionUI : MonoBehaviour {
     private Vector3 start;
     private Vector3 end;
     private void Update() {
-        if (Input.GetMouseButtonDown(0)) {
+        if (Input.GetMouseButtonDown(1)) {
             start = Input.mousePosition;
         }
-        if (Input.GetMouseButton(0)) {
+        if (Input.GetMouseButton(1)) {
             float width = Input.mousePosition.x - start.x;
             float height = Input.mousePosition.y - start.y;
             

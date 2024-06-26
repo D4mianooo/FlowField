@@ -5,14 +5,13 @@ using UnityEngine;
 
 public class FlowFieldDebug : MonoBehaviour
 {
-	private FlowFieldGenerator _flowFieldGenerator;
-	private bool _displayGrid;
-	private FlowFieldDisplayType _curDisplayType;
+	[SerializeField] private FlowFieldGenerator _flowFieldGenerator;
+	[SerializeField] private bool _displayGrid;
+	[SerializeField] private FlowFieldDisplayType _curDisplayType;
 
 	private Vector2Int _gridSize;
 	private float _cellRadius;
 	private FlowField _curFlowField;
-
 	private Sprite[] _ffIcons;
 
 	private void Start() {
@@ -57,7 +56,7 @@ public class FlowFieldDebug : MonoBehaviour
 		GameObject iconGO = new GameObject();
 		SpriteRenderer iconSR = iconGO.AddComponent<SpriteRenderer>();
 		iconGO.transform.parent = transform;
-		iconGO.transform.position = cell.WorldPosition;
+		iconGO.transform.position = cell.WorldPosition + Vector3.up * 0.01f;
 
 		if (cell.BestCost == 0)
 		{

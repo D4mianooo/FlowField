@@ -5,34 +5,22 @@ using UnityEngine;
 
 public class UnitController : MonoBehaviour {
     [SerializeField] private FlowFieldGenerator _flowFieldGenerator;
-    [SerializeField] private float _stoppingDistance;
-    [SerializeField] private Unit _unit;
-    private Rigidbody _rigidbody;
-    private Transform _destination;
-    private FlowField _lastFlowField;
+    private UnitSelection _unitSelection;
     private void Awake() {
-        _rigidbody = GetComponent<Rigidbody>();
-        _unit = GetComponent<Unit>();
+        _unitSelection = GetComponent<UnitSelection>();
     }
-    private void FixedUpdate() {
-        if(_flowFieldGenerator.FlowField == null) return;
-        if (_unit.IsSelected()) {
-            _lastFlowField = _flowFieldGenerator.FlowField;
-        }
-        if(_lastFlowField == null) return; 
-        Cell cell = _lastFlowField.GetCellFromWorldPosition(transform.position);
-        Vector3 direction = new Vector3(cell.BestDirection.Vector.x, 0f, cell.BestDirection.Vector.y);
-        if (IsWithinStoppingDistance()) {
-            _rigidbody.velocity = Vector3.zero;
-            return;
-        }
-        _rigidbody.velocity = direction * 10f;
-      
-    }
-    private bool IsWithinStoppingDistance() {
-        float distance = Vector3.Distance(transform.position, _lastFlowField.DestinationCell.WorldPosition);
+    private void OnEnable() {
+        _flowFieldGenerator.OnFlowFieldDrawed += SetSelectedUnitsFlowField;
 
-        return distance <= _stoppingDistance;
+    }
+    private void SetSelectedUnitsFlowField(object sender, FlowField flowField) {
+        if (_unitSelection.SelectedUnits != null) {
+            if (_unitSelection.SelectedUnits.Count > 0) {
+                foreach (Unit unit in _unitSelection.SelectedUnits) {
+                    unit.SetFlowField(flowField);
+                }
+            }
+        }
     }
 }
 

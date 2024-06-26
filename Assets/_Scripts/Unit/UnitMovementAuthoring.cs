@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
@@ -11,8 +12,7 @@ public struct UnitMovement : IComponentData {
     public float MoveSpeed;
 
 }
-public class UnitMovementAuthoring : MonoBehaviour
-{
+public class UnitMovementAuthoring : MonoBehaviour {
     public float3 Velocity;
     public float MoveSpeed;
 

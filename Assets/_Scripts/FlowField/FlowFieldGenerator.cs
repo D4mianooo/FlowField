@@ -1,32 +1,35 @@
 using System;
 using UnityEngine;
+using DamianoUtils;
 
 public class FlowFieldGenerator : MonoBehaviour {
     [SerializeField] private FlowFieldDebug _flowFieldDebug;
-
+    public FlowField FlowField { get; private set; }
     public Vector2Int Size;
     public float CellRadius;
     
-    public FlowField _flowField;
-    private float _cellDiameter;
-    
+    public event EventHandler<FlowField> OnFlowFieldDrawed;
 
+    
     private void Start() {
         CreateFlowField();
     }
     private void Update() {
         Vector3 mouseWorldPos = Mouse3D.GetMouseWorldPosition();
         if (Input.GetMouseButtonDown(0)) {
-            Cell cellAtMousePosition = _flowField.GetCellFromWorldPosition(mouseWorldPos);
-            _flowField.CreateIntegrationField(cellAtMousePosition);
-            _flowField.CreateFlowField();
+            Cell cellAtMousePosition = FlowField.GetCellFromWorldPosition(mouseWorldPos);
+            FlowField.CreateIntegrationField(cellAtMousePosition);
+            FlowField.CreateFlowField();
+            if (OnFlowFieldDrawed != null) {
+                OnFlowFieldDrawed(this, FlowField);
+            }
             _flowFieldDebug.DrawFlowField();
         }   
     }
     public void CreateFlowField() {
-        _flowField = new FlowField(Size, CellRadius);
-        _flowField.CreateGrid();
-        _flowField.CreateCostField();
-        _flowFieldDebug.SetFlowField(_flowField);
+        FlowField = new FlowField(Size, CellRadius);
+        FlowField.CreateGrid();
+        FlowField.CreateCostField();
+        _flowFieldDebug.SetFlowField(FlowField);
     }
 }

@@ -16,8 +16,7 @@ public class GridDirection
         return direction.Vector;
     }
 
-    public static GridDirection GetDirectionFromV2I(Vector2Int vector)
-    {
+    public static GridDirection GetDirectionFromV2I(Vector2Int vector) {
         return CardinalAndIntercardinalDirections.DefaultIfEmpty(None).FirstOrDefault(direction => direction == vector);
     }
     
