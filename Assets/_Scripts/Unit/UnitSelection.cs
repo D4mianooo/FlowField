@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DamianoUtils;
 
 public class UnitSelection : MonoBehaviour {
     private Collider[] colliders;
@@ -10,7 +11,7 @@ public class UnitSelection : MonoBehaviour {
     private float width;
     private float height;
     private void Update() {
-        if (Input.GetMouseButtonDown(0)) {
+        if (Input.GetMouseButtonDown(1)) {
             start = Mouse3D.GetMouseWorldPosition();
             foreach (Collider collider in colliders) {
                 if (collider.TryGetComponent(out ISelectable selectable)) {
@@ -18,7 +19,7 @@ public class UnitSelection : MonoBehaviour {
                 }
             }
         }
-        if (Input.GetMouseButtonUp(0)) {
+        if (Input.GetMouseButtonUp(1)) {
             end = Mouse3D.GetMouseWorldPosition();
             width = Math.Abs(end.x - start.x);
             height = Math.Abs(end.z - start.z);
