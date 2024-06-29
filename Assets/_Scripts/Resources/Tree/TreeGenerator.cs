@@ -10,7 +10,6 @@ public class TreeGenerator : MonoBehaviour {
     
     void Start() {
         _treeFactory = new TreeFactory(_treeScriptableObjects);
-        
         List <Tree> trees = _treeFactory.Manufacture(treesToSpawn);
         
         foreach (Tree tree in trees) {
@@ -18,15 +17,15 @@ public class TreeGenerator : MonoBehaviour {
             SpawnAt(tree, randomPosition);
         }
     }
-    private void SpawnAt(Tree tree, Vector3 position) {
+    private void SpawnAt(in Tree tree, Vector3 position) {
         GameObject t = Instantiate(tree.GetModel(), position, Quaternion.identity);
         
         TreeHealthComponent treeHealthComponent = t.AddComponent<TreeHealthComponent>();
         treeHealthComponent.SetTreeHealth(tree.GetTreeHealth());
     }
     private Vector3 GetRandomPosition() {
-        float x = Randomizer.Singleton().Next(_flowFieldGenerator.Size.x);
-        float z = Randomizer.Singleton().Next(_flowFieldGenerator.Size.y);
+        float x = Randomizer.Singleton().Next((int)(_flowFieldGenerator.Size.x * _flowFieldGenerator.CellRadius * 2f));
+        float z = Randomizer.Singleton().Next((int)(_flowFieldGenerator.Size.y * _flowFieldGenerator.CellRadius * 2f));
         
         return new Vector3(x, 0f, z);
     }

@@ -14,6 +14,7 @@ public class FlowField {
         CellDiameter = cellRadius * 2f;
         CellRadius = cellRadius;
         Grid = new Cell[size.x, size.y];
+        DestinationCell = null;
     }
     
     public void CreateGrid() {
@@ -45,8 +46,6 @@ public class FlowField {
         ClearIntegrationField();
         
         DestinationCell = cell;
-        if(DestinationCell.Cost >= byte.MaxValue) return;
-        
         DestinationCell.SetBestCost(0);
 
         Queue<Cell> q = new Queue<Cell>();
@@ -54,14 +53,12 @@ public class FlowField {
         
         while (q.Count > 0) {
             Cell current = q.Dequeue();
-            List<Cell> neighbours = GetNeighboursFromCell(current.Coordinate, GridDirection.AllDirections);
+            List<Cell> neighbours = GetNeighboursFromCell(current.Coordinate, GridDirection.CardinalDirections);
             
             foreach (Cell neighbour in neighbours) {
-                if (neighbour.Cost < byte.MaxValue && neighbour.BestCost == ushort.MaxValue) {
-                    int neighbourCost = current.BestCost + neighbour.Cost;
-                    if (neighbourCost < neighbour.BestCost) {
-                        neighbour.SetBestCost((ushort) neighbourCost);
-                    }
+                if (neighbour.Cost >= byte.MaxValue) continue;
+                if (neighbour.Cost + current.BestCost < neighbour.BestCost) {
+                    neighbour.BestCost = (ushort)(neighbour.Cost + current.BestCost);
                     q.Enqueue(neighbour);
                 }
             }
@@ -70,6 +67,7 @@ public class FlowField {
 
     public void CreateFlowField() {
         foreach (Cell current in Grid) {
+   
             List<Cell> neighbours = GetNeighboursFromCell(current.Coordinate, GridDirection.AllDirections);
             int bestCost = current.BestCost;
             foreach (Cell neighbour in neighbours) {

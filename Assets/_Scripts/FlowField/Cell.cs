@@ -3,8 +3,8 @@ using UnityEngine;
 public class Cell {
     public Vector3 WorldPosition { get; private set; }
     public Vector2Int Coordinate { get; private set; }
-    public byte Cost { get; private set; }
-    public ushort BestCost { get; private set; }
+    public byte Cost { get; set; }
+    public ushort BestCost { get; set; }
     public GridDirection BestDirection { get; private set; }
     
     public Cell(Vector3 worldPosition, Vector2Int coordinate) {
